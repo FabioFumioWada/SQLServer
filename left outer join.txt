@@ -1,0 +1,12 @@
+select a.codcolgerencial,a.codgerencial
+from crateiolc a left outer join cgerencia b
+on
+a.codcolgerencial = b.codcoligada and
+a.codgerencial = b.codconta 
+where
+b.codcoligada is NULL and
+b.codconta is NULL
+group by 
+a.codcolgerencial,a.codgerencial,b.codcoligada,b.codconta
+order by b.codconta
+

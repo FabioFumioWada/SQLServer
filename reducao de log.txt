@@ -1,0 +1,17 @@
+Para diminuir o tamanho do log da base de dados do cliente, siga os passos abaixo:
+ 
+1º)  Peça ao cliente para fazer um backup da base de dados
+2º) Execute:  DBCC SHRINKFILE   (<log> ,<tamanho> ,truncateonly  )
+      Onde: <log>  , é o nome lógico do device de log.
+                 <tamanho> ,  é o tamanho para o qual você quer reduzir o arquivo, (será reduzido ao valor máximo que o banco permite caso o tamanho seja muito pequeno).
+ 
+3º) Execute: DUMP TRAN <banco de dados>  WITH NO_LOG
+      Onde: <banco de dados> é o nome do banco de dados.
+ 
+Ex:
+DBCC SHRINKFILE (exemplo_log ,10 ,truncateonly)
+ 
+DUMP TRAN EXEMPLO WITH NO_LOG
+ 
+caso queira realizar a redução no máximo que o banco permite, retire  o tamanho:
+DBCC SHRINKFILE (exemplo_log , truncateonly)
