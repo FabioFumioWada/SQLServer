@@ -1,0 +1,12 @@
+I called Microsoft and here was there solution that worked. To restore a database with only single MDF and no transaction log:
+
+
+Rename current_database.mdf to current_database.mdf .old Create New Database with same name as old unavailable database Open SQLServer Properites, Server Settings tab
+    Set Server Properites to "ALLOW MODIFICATIONS TO BE MADE DIRECTLY TO THE SYSTEM"
+Run this Query
+update sysdatabases
+set status = 32768
+where name='database_name'
+Stop/Start SQL Server
+Database should appear in "Emergency Mode"
+Then IMPORT Database and all objects into a NEW database Drop the Database which is in EMERGENCY MODE Rename NEW database to desired database name

@@ -1,0 +1,117 @@
+   
+  Artigos: Entenda e utilize Row Versioning no SQL Server 2005
+Postado em Segunda-feira, 27 de Novembro de 2006 (7:00:00) por niltonpinheiro   
+    
+   RFernandes enviou "Um dos grandes paradigmas do SQL Server 2000 é como aumentar a concorrência sem que ocorra locks desnecessários? Para isso existem os isolation levels, porém nem sempre são efecientes e nos atendem completamente. Neste artigo demonstro como aumentar a concorrência utilizando o novo recurso do SQL Server 2005, o Row Versioning.
+
+O SQL Server 2005 implementa o recurso de “row versioning”, que consiste em gerar uma versão da “linha” antes de sua alteração, permitindo assim que outras transações que estejam acessando a mesma “linha” enxerguem a versão anterior. Evitando assim um “lock wait” e aumentando a concorrência, pois a versão não é retirada até que a transação que a está alterando realize um COMMIT. 
+O row versioning pode ser implementado de duas formas:
+
+READ_COMMITTED_SNAPSHOT: 
+
+Esta opção é ativada no nível banco de dados e quando ativa faz com que todas as transações em modo default READ_COMMITED, acessem o “row versioning”.
+
+Quando habilitamos esta opção no database ele passa a versionar todas as “linhas” que por ventura venham a ser alteradas e todas as transações que necessitam acessar esta “linha” farão acesso ao “row versioning”, até que a transação que iniciou uma alteração realize o commit.
+
+Para que vocês possam entender melhor, vamos a um exemplo utilizando o database AdventureWorks. Se preferir você pode utilizar qualquer outro banco de dados.
+
+O primeiro passo é habilitar o “row versioning”, no modo READ_COMMITTED_SNAPSHOT. Para isso basta executar o script abaixo.
+
+ALTER DATABASE AdventureWorks
+SET READ_COMMITTED_SNAPSHOT ON;
+
+Vamos criar uma tabela para realizarmos os testes:
+
+CREATE TABLE Teste (idx int Identity(1,1), valor int);
+
+Agora vamos inserir algumas linhas nesta tabela:
+
+INSERT INTO Teste VALUES (10);
+INSERT INTO Teste VALUES (20);
+INSERT INTO Teste VALUES (30);
+
+Agora, ainda na sessão corrente execute o script abaixo para efetuar um UPDATE no registro de valor 10. Note que o UPDATE altera a “linha” que estava com valor 10 para 11.
+
+BEGIN TRANSACTION
+           UPDATE Teste SET valor = 11
+           WHERE valor = 10
+IF @@ERROR > 0
+  --ROLLBACK TRANSACTION 
+ELSE
+  --COMMIT TRANSACTION
+
+Após a execução do UPDATE, ainda na mesma sessão, vamos consultar os dados:
+
+SELECT * FROM Teste
+
+No resultado podemos observar que a “linha 1” teve o valor alterado de 10 para 11, mesmo sem realizarmos um COMMIT.
+
+ 
+Agora, abra uma nova sessão e execute a mesma consulta. Note que a consulta retorna que a “linha 1” continua com valor 10. Isso ocorre porque a transação que disparou o UPDATE anterior ainda não realizou um COMMIT. Sendo assim, esta sessão está acessando o row versioning. Observe também que diferente do que aconteceria no SQL Server 2000, sua sessão não ficou bloqueada, aguardando pela conclusão do UPDATE.
+
+ 
+Vantagem
+
+Uma das grandes vantagens da utilização do READ_COMMITTED_SNAPSHOT é que não precisamos declarar nenhum isolation level no nível de sessão para que as sessões utilizem o “row versioning”.
+
+Desvantagem
+
+Muitas vezes pode não ser interessante que uma transação em modo default READ_COMMITTED, consulte um valor antigo, pois este pode vir a gerar  futuras inconsistências.
+
+ALLOW_SNAPSHOT_ISOLATION:
+
+Esta opção também é ativada no nível de banco de dados mas diferente da opção anterior, requer que todas  as sessões que querem fazer uso do row versioning iniciem a sessão com o comando SET TRANSACTION ISOLATION LEVEL SNAPSHOT. Isso limita as transações que farão acesso ao “row versioning”, controlando melhor a integridade da transação e também o uso do TEMPDB.
+
+O exemplo abaixo habilita o “row versioning”, no modo ALLOW_SNAPSHOT_ISOLATION.
+
+ALTER DATABASE AdventureWorks
+SET ALLOW_SNAPSHOT_ISOLATION ON;
+
+Agora vamos utilizar à mesma tabela que criamos no exemplo anterior. Observem a utilização do SET TRANSACTION ISOLATION LEVEL SNAPSHOT no início do script.
+
+SET TRANSACTION ISOLATION LEVEL SNAPSHOT
+BEGIN TRANSACTION
+         UPDATE Teste SET valor = 21
+         WHERE valor = 20
+IF @@ERROR > 0
+  --ROLLBACK TRANSACTION 
+ELSE
+  --COMMIT TRANSACTION
+
+Após a execução do UPDATE, nesta mesma sessão, vamos consultar a tabela para verificar como ficou a “linha” afetada.
+
+SELECT * FROM Teste
+
+Como podemos observar na figura abaixo, para esta sessão o valor 20 foi alterado para 21, conforme solicitamos, porém ainda não realizamos um COMMIT.
+
+ 
+Agora vamos abrir uma nova sessão e efetuar um novo SELECT na tabela. Observem novamente a utilização do 
+SET TRANSACTION ISOLATION LEVEL SNAPSHOT no início do script.
+
+SET TRANSACTION ISOLATION LEVEL SNAPSHOT;
+SELECT * FROM Teste;
+
+Note que para esta sessão o valor continua como 20, isso porque ao efetuar o SELECT esta sessão utilizou o row versioning. Outro ponto de observação é que a sessão não ficou bloqueada pela sessão que está executando o UPDATE, como aconteceria se estivéssemos usando o SQL Server 2000.
+
+Caso não tivéssemos declarado o isolation level snapshot no inicio do script, aí sim a sessão entraria em estado de “lock wait” e ficaria aguardando pela conclusão do UPDATE (o COMMIT) da sessão 1. Tendo assim o mesmo comportamento que no SQL Server 2000.
+
+ 
+Abaixo temos uma tabela (retirada do Books Online do SQL Server 2005) que sumariza  as diferenças entre READ_COMMITTED_SNAPSHOT e ALLOW_SNAPSHOT_ISOLATION.
+
+ 
+Vantagem
+
+Com a utilização do ALLOW_SNAPSHOT_ISOLATION temos um melhor controle de cada transação, ou seja, podemos decidir qual transação usará ou não o row versioning.
+
+Importante
+
+Os tipos de “row versioning”, podem trabalhar de forma individual ou juntos, ou seja, podemos habilitar READ_COMMITTED_SNAPSHOT e ALLOW_SNAPSHOT_ISOLATION no mesmo database.
+
+O “row versioning” utiliza o Tempdb para fazer o versionamento. Porém para peuqenas transações o SQL Server 2005 salva a versão no buffer pool, não sendo necessário escrever no Tempdb e evitando assim I/O overhead desnecessário, para acessá-lo. De qualquer forma, caso pretenda trabalhar com row version é preciso ficar atento à utilização do Tempdb.
+
+Para maiores informações sobre row versioning, consulte o tópico row versioning [SQL Server] no Books Online do SQL Server 20005.
+
+Um Abraço e até a próxima!
+Rodrigo Fernandes (RFernandes)
+
+ 
