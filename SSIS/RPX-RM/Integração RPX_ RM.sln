@@ -1,0 +1,17 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{D183A3D8-5FD8-494B-B014-37F57B35E655}") = "Integração RPX_ RM", "Integração RPX_ RM\Integração RPX_ RM.dtproj", "{4C01D2A8-228D-4754-B06F-A05DB79CA53A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Development|Default = Development|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4C01D2A8-228D-4754-B06F-A05DB79CA53A}.Development|Default.ActiveCfg = Development
+		{4C01D2A8-228D-4754-B06F-A05DB79CA53A}.Development|Default.Build.0 = Development
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

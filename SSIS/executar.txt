@@ -1,0 +1,3 @@
+Executar: dtExec /SQL "\Nome do Job" /SERVER "Servidor\Instância"
+
+Ver: select name from msdb.dbo.sysdtspackages90

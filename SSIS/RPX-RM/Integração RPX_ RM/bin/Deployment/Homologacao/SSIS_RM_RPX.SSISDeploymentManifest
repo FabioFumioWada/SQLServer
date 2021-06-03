@@ -1,0 +1,1 @@
+<?xml version="1.0"?><DTSDeploymentManifest GeneratedBy="CORPORATE\p-fwada" GeneratedFromProjectName="SSIS_RM_RPX" GeneratedDate="2015-02-04T14:20:09.3308247-02:00" AllowConfigurationChanges="true"><Package>SSIS_RM_RPX.dtsx</Package><ConfigurationFile>SSIS_RM_RPX.dtsConfig</ConfigurationFile></DTSDeploymentManifest>
