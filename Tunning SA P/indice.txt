@@ -1,0 +1,6 @@
+antes - 4minutos
+atualizaestatisticas - 6 minutos
+registrostabelas - 2 minutos
+dbccreindex - 35 minutos
+spaceused - 1 minutos
+
