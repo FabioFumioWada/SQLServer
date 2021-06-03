@@ -1,0 +1,17 @@
+This example compares the results of STR and CONVERT.
+
+SELECT STR(3.147) AS 'STR',
+
+       STR(3.147, 5, 2) AS '2 decimals',
+
+       STR(3.147, 5, 3) AS '3 decimals'
+
+GO
+Here is the result set:
+
+STR        2 decimals 3 decimals 
+
+---------- ---------- ---------- 
+
+         3  3.15      3.147      
+
