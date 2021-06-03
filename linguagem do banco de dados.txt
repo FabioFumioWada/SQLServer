@@ -1,0 +1,7 @@
+No prompt do DOS digite:
+
+osql -Usa -P(coloque senha do usuário SA se tiver)
+
+sp_defaultlanguage 'RM', 'us_english'
+
+go

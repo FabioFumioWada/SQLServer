@@ -1,0 +1,174 @@
+De: Fabio Fumio Wada
+Enviado em: sábado, 29 de julho de 2006 11:49
+Para: ftpfumio@gmail.com
+Assunto: ENC: Apoio - Script - Acessando Planilhas Excel através de Consulta SQL
+
+ 
+
+ 
+
+
+--------------------------------------------------------------------------------
+
+De: Geraldo Zamparo 
+Enviada em: sábado, 29 de julho de 2006 11:35
+Para: Maria de Fatima Rufino Silva; Fabio Fumio Wada; Fábio Roberto Josué; Janaina Pereira; Almir Daniel Azevedo; Fernando Bispo Mandinga; Robson Paulo da Silva; Nelson Luiz Romero Junior
+Assunto: Apoio - Script - Acessando Planilhas Excel através de Consulta SQL
+
+ 
+
+//////////////////////////////////////////////////////
+
+Script
+
+//////////////////////////////////////////////////////
+
+------------------------------------------------------------------------ SCRIPT CRIADO POR : MAURO C. PICHILIANI-- DATA : 12/02/2006-- CONTEÚDO: CRIAÇÃO DE SERVIDOR LINKADO PARA O EXCEL E ARQUIVO TEXT-- EXEMPLOS DE ACESSO E MANIPULAÇÃO DOS DADOS EM SERVIDORES LINKADOS--------------------------------------------------------------------- /* CRIANDO UM SERVIDOR LINKADO PARA *//* ACESSAR OS DADOS DAS PLANILHAS DO ARQUIVO */EXEC sp_addlinkedserver 'FonteExcel',   'Jet 4.0',   'Microsoft.Jet.OLEDB.4.0',   'c:\dados\DadosExcel.xls',   NULL,   'Excel 5.0'GO /* VERIFICANDO O QUE ESTÁ DISPONÍVEL PARA NÓS */EXEC sp_tables_ex FonteExcel /* VERIFICANDO OS DADOS NA TABELA1 */SELECT *FROM FonteExcel...Tabela1 /* VERIFICANDO OS DADOS NA PLANILHA 1 */SELECT *FROM FonteExcel...Planilha1$ /* VERIFICANDO OS DADOS NA PLANILHA 2 */SELECT *FROM FonteExcel...Planilha2$ /* VERIFICANDO OS DADOS NA PLANILHA 3 */SELECT *FROM FonteExcel...Planilha3$  /* INSERINDO DADOS NA PLANILHA 1 */INSERT FonteExcel...Tabela1VALUES(4,'D',5.8) /* ALTERANDO DADOS NA PLANILHA 1 */UPDATE FonteExcel...Tabela1SET Id = Id * 2 /* A INSTRUÇÃO ABAIXO GERA UM ERRO */DELETE FonteExcel...Tabela1WHERE Nome = 'D' /* REMOVENDO O SERVIDOR LINKADO */sp_dropserver FonteExcelGO   /* CRIANDO UM SERVIDOR LINKADO PARA *//* ACESSAR O ARQUIVO TEXTO */EXEC sp_addlinkedserver FonteTxt, 'Jet 4.0',    'Microsoft.Jet.OLEDB.4.0',   'c:\Dados',   NULL,   'Text'GO /* VERIFICANDO O QUE ESTÁ DISPONÍVEL PARA NÓS */EXEC sp_tables_ex FonteTxtGO /* VERIFICANDO OS DADOS DO ARQUIVO TEXTO */SELECT *FROM FonteTxt...Teste#txt /* REMOVENDO O SERVIDOR LINKADO */sp_dropserver FonteTxtGO 
+
+/////////////////////////////////////////////////////
+
+A Matéria :
+
+////////////////////////////////////////////////////
+
+Fazendo SELECT em planilhas do Excel e arquivos texto
+Mauro Pichiliani (e-mail) é MCP, Instrutor oficial da Microsoft (MCT) para cursos de SQL Server e .Net. Consultor de banco de dados com enfoque na área de tunning.
+
+Olá pessoal. Na coluna desta semana vou mostrar como executar a instrução SELECT em dados contidos dentro de uma planilha do Excel ou um arquivo texto. Alguns exemplos serão mostrados não somente para consultar dados mas também para manipular os dados através de instruções INSERT e UPDATE.
+
+Primeiro veremos como fazer para acessar as informações dentro de uma planilha do Excel. Um arquivo com extensão .xls pode conter várias planilhas e, em cada planilha, temos informações que desejamos manipular. Neste artigo utilizarei um arquivo chamado DadosExcel.xls que contém três planilhas: Planilha1, Planilha2 e Planilha3. Este arquivo, assim como o script e o arquivo texto, será disponibilizado para download no final do artigo.
+
+Antes de configurarmos a conexão vamos dar uma olhada nas planilhas no arquivo do Excel. A Figura 1 mostra o conteúdo da Planilha 1. Notem que o conjunto de células que nos interessa foi selecionado e a este conjunto células se deu o nome de Tabela 1. Para fazer isso no Excel basta selecionar as células desejadas e colocar o nome deste conjunto de células na caixa de nome que está circulada em vermelho na Figura 1.
+
+Colocar um nome para o conjunto de células de uma planilha do Excel é importante pois é através deste nome que iremos manipular os dados desta planilha no Excel.
+
+
+Figura 1. Colocando um nome para o conjunto de células no Excel.
+
+A Figura 2 mostra o conteúdo da Planilha 2 e a Figura 3 mostra o conteúdo da Planilha 3. Nestas duas planilhas nenhum nome foi colocado para o conjunto de células.
+
+
+Figura 2. Conteúdo da Planilha 2.
+
+
+Figura 3. Conteúdo da Planilha 3.
+
+Agora que já conhecemos o conteúdo das nossas planilhas podemos configurar o ambiente no SQL Server para acessar estes dados. Para evitar problemas recomenda-se fechar o Excel e garantir que nenhum outro usuário esteja com o arquivo .xls aberto.
+
+Como bem sabemos o Excel não é um SGBD (Sistema Gerenciador de Banco de Dados) e por isso não possui recursos para interpretar instruções SQL como o SELECT. Para fazer o ‘truque’ utilizaremos um mecanismo de acesso aos dados chamado Jet. Ele será o responsável por interpretar a instrução que enviaremos à planilha e retornar os dados corretamente. Mostrarei aqui o uso básico de algumas instruções que o Jet consegue trabalhar. Para mais informações recomendo a documentação oficial deste mecanismo.
+
+Para facilitar o acesso aos dados vamos configurar um servidor linkado. Faremos uma chamada à system stored procedure sp_addlinkedserver especificando como parâmetro a localização do arquivo .xls. Atenção especial para o caminho e o nome do arquivo. Estas informações, apesar de estarem como string, são case sensitive, ou seja, letras maiúsculas e minúsculas são consideradas de forma diferente. O comando apresenta a criação de um servidor linkado chamado FonteExcel que vai nos permitir acesso aos dados da planilha.
+
+/* CRIANDO UM SERVIDOR LINKADO PARA */
+/* ACESSAR OS DADOS DAS PLANILHAS DO ARQUIVO */
+EXEC sp_addlinkedserver "FonteExcel",
+"Jet 4.0",
+"Microsoft.Jet.OLEDB.4.0",
+"c:\dados\DadosExcel.xls",
+NULL,
+"Excel 5.0"
+GO
+
+Listagem 1. Criando o servidor linkado para acessar os dados contidos no arquivo .xls.
+
+Uma vez que o servidor linkado seja criado com sucesso podemos verificar quais ‘tabelas’ e planilhas estão à nossa disposição utilizando a system stored procedure chamada sp_tables_ex como mostrado abaixo:
+
+/* VERIFICANDO O QUE ESTÁ DISPONÍVEL PARA NÓS */
+EXEC sp_tables_ex FonteExcel
+GO
+
+De acordo com a planilha definida acima o resultado da chamada à sp_tables_ex é mostrado na Figura 4.
+
+
+Figura 4. Tabelas acessíveis na planilha do Excel.
+
+Para acessar os dados através de instruções SQL basta utilizar o nome completamente qualificado, como a instrução abaixo mostra:
+
+/* VERIFICANDO OS DADOS NA TABELA1 */
+SELECT *
+FROM FonteExcel...Tabela1
+
+O resultado da instrução acima é mostrado na Figura 5.
+
+
+Figura 5. Resultado da instrução SELECT no conjunto de células do Excel.
+
+Desta forma podemos facilmente copiar os dados de uma planilha do Excel para dentro de uma tabela do SQL Server utilizando a cláusula INTO da instrução SELECT. Notem que as três primeiras células da planilha são usadas como nome das colunas e, caso necessário, podemos nos referenciar à estas colunas utilizando colchetes ([]).
+
+Podemos ainda fazer instruções SELECT diretamente nas planilhas, como as instruções SELECT abaixo mostram:
+
+/* VERIFICANDO OS DADOS NA PLANILHA 1 */
+SELECT *
+FROM FonteExcel...Planilha1$
+
+/* VERIFICANDO OS DADOS NA PLANILHA 2 */
+SELECT *
+FROM FonteExcel...Planilha2$
+
+/* VERIFICANDO OS DADOS NA PLANILHA 3 */
+SELECT *
+FROM FonteExcel...Planilha3$
+
+Porém, desta maneira nem sempre os resultados são os que esperamos. Para evitar problemas com a formatação dos dados recomendo fortemente a colocação de um nome no conjunto de células, como foi mostrado na Figura 1.
+
+Além da instrução SELECT podemos também enviar outras instruções DML para a planilha. Neste caso é necessário que tenhamos acesso de gravação à planilha e que nenhum outro usuário esteja manipulando-a. Outro detalhe é que não podemos utilizar transações explícitas. Exemplos dos comandos que podemos enviar para a planilha seguem abaixo:
+
+/* INSERINDO DADOS NA PLANILHA 1 */
+INSERT FonteExcel...Tabela1
+VALUES(4,"D",5.8)
+
+/* ALTERANDO DADOS NA PLANILHA 1 */
+UPDATE FonteExcel...Tabela1
+SET Id = Id * 2
+
+Infelizmente o Jet não permite a execução de instruções DELETE em dados contidos em uma planilha do Excel.
+
+Para remover o servidor linkado basta utilizar a system stored procedure sp_dropserver como mostrado abaixo:
+
+sp_dropserver FonteExcel
+
+Segundo o mesmo raciocínio podemos manipular dados em arquivos texto desta maneira. Porém como o arquivo texto pode possui vários formatos diferentes o Jet possui um mecanismo para indicar qual é o layout das informações dentro do arquivo. Este mecanismo envolve a criação de um arquivo indicando onde começa e onde termina cada uma das colunas. Para mais informações consulte a documentação do Jet.
+
+Veremos arqui um exemplo simples onde o conteúdo do arquivo texto segue o padrão CSV. A Figura 6 mostra o conteúdo deste arquivo chamado Teste.txt
+
+
+Figura 6. Conteúdo do arquivo texto Teste.txt
+
+Para configurar o servidor linkado para este arquivo texto vamos chamar novamente a system stored procedure sp_addlinkedserver porém com um valor do parâmetro diferente: não especificaremos o nome do arquivo e sim o diretório na qual ele se encontra.
+
+/* CRIANDO UM SERVIDOR LINKADO PARA */
+/* ACESSAR OS DADOS DE ARQUIVOS TEXTO */
+EXEC sp_addlinkedserver FonteTxt, "Jet 4.0", 
+"Microsoft.Jet.OLEDB.4.0",
+"c:\Dados",
+NULL,
+"Text"
+GO
+
+Verificando o que podemos acessar com a system stored procedure sp_tables_ex veremos que existe uma opção chamada Text#txt. Acessaremos esta opção da mesma forma que no arquivo Excel, ou seja, utilizando o nome completamente qualificado.
+
+/* VERIFICANDO OS DADOS DO ARQUIVO TEXTO */
+SELECT *
+FROM FonteTxt...Teste#txt
+
+O resultado da instrução acima pode ser visto na Figura 7. Notem que o nome da coluna ficou sendo o conteúdo da primeira linha e que o SQL Serve NÂO separou cada coluna pela vírgula. Como dito anteriormente isso pode ser resolvido através da criação de um arquivo que especifica a posição das colunas. Mas isso já é um assunto para outra coluna.
+
+
+Figura 7. Resultado da instrução SELECT no conteúdo do arquivo texto.
+
+Faça o download do arquivo Excel, do arquivo texto e do script com os comandos para a criação dos servidores linkados.
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+ 
+
+Geraldo Zamparo
+
+Consultor de Implantação
+
+RM Sistemas S.A. – São Paulo – Grupo TOTVS
+
+geraldo.zamparo@rmsp.com.br  - www.rm.com.br
+Tel: (11) 2179 - 9000 Fax: (11) 2179-9052
+
+ 

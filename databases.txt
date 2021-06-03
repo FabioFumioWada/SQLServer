@@ -1,0 +1,8 @@
+Prezados,
+	Quando se for no cliente para criar uma base vazia, ou fazer manutenção no SGDB (Sistema Gerenciador de Banco de Dados) SQL 7.0 ou SQL 2000, não podemos esquecer que analisar e conferir todos os parâmetros de configuração.
+Para criação de uma base de dados ou correção da mesma, sugerimos que realizem a seguinte conferência na base de dados do Corpore: 
+Verifique nas propriedades do banco de dados, na guia Data Files e Transaction Log se está parametrizado para crescer a base automaticamente sem limitação de tamanho; 
+Na guia options... 
+	SQL 7.0 - Marcar somente as opções Ansi Null Default, Truncate log on checkpoint, Auto Close e Auto Shirink; 
+	SQL 2000 - No Recovery/Model colocar como Simple (somente se não realiza backup de log); e marcar somente as opções Ansi Null Default, Auto Close e Auto Shrink; 
+Confira se existe espaço suficiente para o crescimento da base no drive em que a mesma está localizada; 

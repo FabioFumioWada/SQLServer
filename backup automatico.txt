@@ -1,0 +1,16 @@
+Para a realização de um backup automático pelo SQL:
+
+- Entrar no Entreprise Manager do SQL (Iniciar - Programas - Microsoft SQL   Server 7.0 - Entreprise Manager)
+
+- Na database que deseja o backup automático, clicar com o botão direito, e   selecionar a opção "All Tasks - Backup Database".
+
+- Defina, o caminho em que será gravado o backup, e defina a opção     Overwrite. Ex: A opção "Append to media", anexa o novo backup  a um    backup já existente, ao contrário da opção "Overwrite existing media", que     sobregrava o backup atual no arquivo selecionado.
+
+- Marque a opção "Schedule", e em seguida clique no botão de "Edição de   Schedule".
+
+- Na tela "Edit Schedule", marque a opção "Recurring", e clique no botão   "Change".
+
+- Na tela "Edit Recurring Job Schedule", na opção "Occurs", marque a opção   "Daily". Na opção "Daily Frequency", vamos marcar a opção "Occurs every",   e definiremos de quanto em quanto tempo (Horas ou Minutos), o sistema   realizará o backup. Ex: 2 Hours. (O sistema realziará o backup num intervalo     de 2 horas)
+  A opção Starting At e Ending At, determinará o período em que o sistema     trabalhará para realizar o backup, por exemplo "Starting At - 00:00" e       "Ending At - 23:59".	
+  A opção "Start Date", determinará a partir de qual data o sistema passará a   efetuar o backup. E a opção "End Date", a data final em que o sistema     deixará de realizar o backup automático. É recomendado que deixe a opção   "No end date" habilitado para que o sistema não faça consistência na data     final.
+

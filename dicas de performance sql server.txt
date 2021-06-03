@@ -1,0 +1,120 @@
+Dicas de Performance no Servidor do SQL Server
+
+1. Servidor Dedicado
+
+Como hoje em dia há uma grande quantidade de programas do tipo Client/Server (inclusive o SQL Server) e o ideal seria dedicarmos uma máquina somente para rodar o serviço de banco de dados. Programas servidores de Web, FTP, e-mail, proxy, DNS, DHCP, Impressão, Source Safe, Telnet, Firewall, etc.., devem estar preferencialmente rodando em outra máquina que não seja a do banco de dados, pois estes serviços estarão competindo pelos mesmos recursos de hardware com o serviço do banco de dados. 
+
+Eu sei, eu sei, nem sempre temos o luxo de possuir uma máquina que seja dedicada ao banco, mas sempre que possível procure limitar ao máximo o número de serviços que atendem a solicitação de usuários rodando ao mesmo tempo, principalmente em servidores de produção.
+
+Também é importante dizer que todo o acesso via rede ao servidor de banco de dados deve ser extremamente limitado. Algumas empresas somente ligam o cabo de rede do servidor de banco de dados diretamente ao servidor de aplicação restringindo ainda mais o acesso ao servidor de banco de dados. Nem acesso a Internet é aconselhável se colocar em um servidor de banco de dados dedicado.
+
+2. Anti-Vírus
+
+Bom, para começar, devemos tocar cuidado com qualquer programa que está rodando ma mesma máquina que o servidor.  Muitos programas parecem inofensivos a primeira vista, mas podem ter certeza quem eles vão roubar ciclos do processador quando estiverem rodando.
+
+Os Anti-vírus são um caso a parte. Com a crescente ameaça destas pragas virtuais é muito difícil ficar livre de se pegar um vírus. Eu recomendo que se tenha instalado um bom anti-vírus no servidor de banco de dados mas procurem evitar ao máximo que este anti-vírus fique rodando como um serviço, pois neste caso a cada arquivo aberto pelo sistema operacional, uma varredura é feita  degradando muito a performance e competindo com o banco de dados no acesso ao disco rígido da máquina, que é uma operação efetuada várias vezes pelo o banco de dados.
+
+Veja bem pessoal, eu não estou dizendo que não devemos proteger nosso servidor com um anti-vírus. Mas também não podemos deixar que este programa não essencial atrapalhe a performance do banco de dados. É somente uma questão de conhecer um pouco sobre o anti-vírus escolhido e procurar desabilitar alguns recursos do mesmo que podem causar perda de performance no servidor.
+
+3. Programas tipo Client
+
+Este tópico me lembra uma ocasião em que fui verificar um problema na máquina de um amigo. Na máquina dele tinha tanto programa rodando ao mesmo tempo minimizado que a barra de tarefas (system tray) do Windows dele estava preenchida com ícones até a metade da tela! E olha que ele estava rodando com uma resolução pequena e com um monitor de 17 polegadas!
+
+Falando sério agora, um servidor de banco de dados é uma máquina que não deve ser utilizada para brincadeira. Programas como ICQ, Morpheus, Kazaa, Real Audio, tradutor inglês-português, descanso de tela, driver do mouse ou teclado especial, etc..., devem ser COMPLETAMENTE eliminados do servidor. Geralmente estes programas são carregados no momento da inicialização do servidor (boot) e podem ser desabilitados de diversas maneiras. Eu costumo dizer que na barra de tarefas do Windows, ao lado do relógio só o mostrador de tráfego de rede e o gerenciador de tarefas (task manager), com a medição da performance, devem ser vistos. 
+
+Também é bom dar uma verificada em programas client como o do proxy, do firewall, do DNS, etc. Alguns destes programas realmente são necessários, mas deve-se fazer uma boa revisão no que deve estar instalado e rodando no servidor.
+
+Eu particularmente procuro instalar o mínimo de programas no servidor. Nem o Office eu recomendo a instalação (mesmo por que ele consome muito espaço na HD) e também nenhum programa client de e-mail.
+
+Resumindo: se você quiser um computador para rodar aquele server do Counter Strike, mesmo que seja somente durante o almoço, é melhor procurar outra máquina que não a do banco de dados!
+
+4. Serviços
+
+Também é extremamente importante uma boa olhada nos serviços que estão rodando no servidor. Podemos obter a lista dos serviços através do Painel de Controle (Control Panel), Ferramentas Administrativas (Administrative Tools) e no ícone Serviços (Services).
+
+Se preocupe somente com aqueles marcados para a inicialização automática. Abaixo mostro alguns serviços (o nome deles está em português) que podem ser desabilitados, poupando memória. Mas atenção: sempre que foi fazer uma modificação no estado de um serviço procure verificar quais os efeitos colaterais que esta ação causará!
+
+* Agendador de tarefas – Geralmente utilizado para a execução de programas como o Defrag ou o ScanDisk periodicamente. Pode ser desabilitado sem problemas. 
+
+* Spooler de impressão – Se você não deseja imprimir a partir desta estação, desabilite este serviço.
+
+* Localizador de computadores – Geralmente não precisamos deste serviço que serve somente para localizar computadores na rede. 
+
+* Serviço RunAs – Somente habilite este serviço se for utilizar o utilitário de console RunAs. Se você nem sabe o que é isso, desabilite este serviço.
+
+* Windows Installer – Confesso que este serviço as vezes me irrita! Em um servidor de banco de dados dedicado, onde raramente são instalados novos softwares, podemos desabilitar este serviço para não receber aquelas irritantes janelas de aviso de instalação...
+
+* Gerenciador de discos lógicos  e  Serviço administrativo do gerenciador de disco lógico – Estes dois serviços servem somente para a formatação/alteração de uma partição dos discos rígidos do servidor. Como estes serviços somente são utilizados uma vez na vida e outra na morte, podemos desabilitá-los.
+
+Aqui quero fazer um aviso importante: geralmente mexer em alguns serviços do Windows que  não sabemos  para que servem pode ser um mau negócio. Principalmente se for um serviço essencial... Por isso, todo cuidado é pouco! E sempre que um serviço que está rodando lhe parecer estranho, se informe  pois pode ser até algo colocado por um Hacker! 
+
+Todos os serviços que forem desabilitados podem ser habilitados normalmente e vice e versa.
+
+5. Verificando os processos.
+
+Podemos ver quais processos estão rodando atualmente no Windows, assim como quanto de memória e de processador está sendo gasto em cada processo, através do Gerenciador de Tarefas (task manager) na aba processos. Para a galera que vem do Linux, é quase a mesma coisa que o comando ps. É muito importante sabermos o que está rodando no momento na máquina e ficarmos ligados nos processos, inclusive alterando a prioridade ou matar o processo, caso este esteja travado. Geralmente se um processo ficar ocupando muito do processador por um bom período de tempo, é provável que ele esteja “travado” e onerando a performance de todo o sistema.
+
+6.  Recursos do servidor
+
+Abaixo eu mostro algumas dicas sobre como otimizar o uso de recursos da máquina servidora pelo Windows:
+
+* Resolução da Máquina
+
+O servidor de banco de dados não é uma máquina que deve ser utilizada diretamente na estação (geralmente o DBA faz administração remota, via Terminal Services ou VNC). Logo, não há razão para utilizar uma resolução boa, tanto de cor como de tamanho. Aconselho 800x600 com 16 cores, no máximo, para conservar memória.
+
+* Compartilhamento
+
+Procure evitar também muitos compartilhamentos de recursos. Se possível, remova os compartilhamentos padrão (como o C$ ou D$) como medida de segurança.
+
+* Som
+
+Elimine qualquer aplicativo/driver que necessite de som do servidor. Na maioria dos casos, nem há uma placa de som no servidor.
+
+*  Ícones no DeskTop
+
+Diminua ao máximo a quantidade de ícones no Desktop, pois cada um deles ocupa a memória de vídeo e espaço em disco
+
+* Proteção de Tela
+
+Como não devemos utilizar a estação do servidor diretamente para acessá-lo (salvo em casos extremos), podemos desabilitar a proteção de tela. Uma boa idéia também é desligar o monitor e acabar economizando energia. É interessante também nem logarmos a estação, uma vez que o serviço do banco de dados pode ser configurado para a inicialização automática.
+
+* Opções de Desempenho
+
+Existe uma opção no Windows que dá prioridade aos programas que estão funcionando em background, como é o caso do SQL Server. Para habilitá-la vá em propriedades do sistema, escolha a aba avançado  e clique no botão Opções de Desempenho. Escolha o check box Serviços em Segundo plano.
+
+Fiquem atentos também ao valor estabelecido para a memória virtual do Windows.
+
+* Internet e E-mail
+
+Como já mencionado anteriormente, procure evitar que o servidor de banco de dados possua acesso à Internet e ao servidor de e-mail, para evitar uma brecha de segurança e para que não haja risco de contaminação com vírus via e-mail.
+
+* IP Fixo
+
+Como o servidor de banco de dados raramente deve ser reinicializado (a não ser em casos extremamente necessários) procure colocar um  IP fixo no mesmo, evitando assim que o servidor faça um acesso para a obtenção de um IP dinâmico ao servidor de DHCP.
+
+7. Dispositivos
+
+Sempre que possível, procure não conectar nenhum dispositivo que não seja realmente necessário para o funcionamento do servidor, seja ele via porta serial, paralela, USB ou interno. Lembre-se também que a cada novo dispositivo plugado no computador um driver deve ser carregado na memória, consumindo assim mais recursos. Abaixo eu mostro uma lista de dispositivos que não são recomendados em um servidor de banco de dados:
+
+* Placa de Som (Quem gostaria de ouvir música no servidor de banco de dados?)
+
+* Placa de Vídeo 3D
+
+* Scanner 
+
+* Zip Drive
+
+* Impressora 
+
+* Câmera Digital 
+
+* Gravador de CD
+
+* DVD
+
+Por outro lado, é extremamente interessante que o servidor possua um leitor de CD comum (para instalação do software) e um dispositivo para backup de grande quantidade como um leitor de fita DAT, por exemplo. Isto sem contar a essencial placa de rede.
+
+Dica retirada do site 
+
+    http://www.imasters.com.br
+

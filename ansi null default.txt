@@ -1,0 +1,3 @@
+OSQL -USA -P
+
+sp_dboption 'Corpore','ANSI null default','true'
